@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Coinflow
 
-## Getting Started
+> Paper demo: live-style crypto overview, email-based sign-up, and a simple dashboard.  
+> **Not** a broker or financial advice.
 
-First, run the development server:
+---
+
+## Quick start
 
 ```bash
+cp .env.example .env   # Windows: copy .env.example .env
+# Edit .env (Neon URLs, AUTH_*, Resend, etc.)
+
+npm install
+npx prisma generate
+npm run db:migrate
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## What it does
 
-## Learn More
+- **Markets** — Reads a cached snapshot from Postgres; CoinGecko refreshes that snapshot on a schedule (cron on Vercel or `npm run markets:refresh` locally).
+- **Auth** — Register with email; server emails a generated password. Sign in with NextAuth (credentials + JWT).
+- **Dashboard** — Protected route for signed-in users.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### App & UI
 
-## Deploy on Vercel
+- [Next.js 16](https://nextjs.org) — App Router, **webpack** (`--webpack` on dev/build)
+- [React 19](https://react.dev)
+- [TypeScript](https://www.typescriptlang.org)
+- [Tailwind CSS 4](https://tailwindcss.com)
+- [Geist](https://vercel.com/font) — `next/font`
+- [Recharts](https://recharts.org)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Forms & validation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [React Hook Form](https://react-hook-form.com)
+- [Zod](https://zod.dev) + [@hookform/resolvers](https://github.com/react-hook-form/resolvers)
+
+### Data & auth
+
+- [PostgreSQL](https://www.postgresql.org) — hosted on [Neon](https://neon.tech)
+- [Prisma 6](https://www.prisma.io) — `DATABASE_URL` (pooler) + `DIRECT_URL` (migrations)
+- [NextAuth.js v5](https://next-auth.js.org) (Auth.js) — Credentials, JWT, [@auth/prisma-adapter](https://authjs.dev/reference/adapter/prisma)
+- [bcryptjs](https://github.com/dcodeIO/bcrypt.js)
+
+### Email & external APIs
+
+- [Resend](https://resend.com) — registration emails
+- [CoinGecko API](https://www.coingecko.com/en/api) — optional API key; data lands in `market_snapshots`
+
+### Tooling & deploy
+
+- [tsx](https://github.com/privatenumber/tsx) + [dotenv](https://github.com/motdotla/dotenv) — scripts
+- [patch-package](https://github.com/ds300/patch-package) — see `patches/next+*.patch`
+- [Vercel](https://vercel.com) — hosting + cron (`vercel.json` → `/api/cron/refresh-markets`)
+
+---
+
+## Environment variables
+
+Copy **`.env.example`** → **`.env`**.
+
+| Variable | Purpose |
+|----------|---------|
+| `DATABASE_URL` | Neon **pooled** URL |
+| `DIRECT_URL` | Neon **direct** URL (Prisma migrations) |
+| `AUTH_SECRET` | NextAuth secret |
+| `AUTH_URL` | Public app URL (e.g. `http://localhost:3000` or your Vercel URL) |
+| `RESEND_API_KEY` | Resend API key |
+| `EMAIL_FROM` | Sender, e.g. `Coinflow <onboarding@resend.dev>` |
+| `CRON_SECRET` | On Vercel, cron requests include `Authorization: Bearer <CRON_SECRET>` |
+| `COINGECKO_API_KEY` | Optional |
+
+---
+
+## NPM scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Dev server (webpack) |
+| `npm run build` | Local production build |
+| `npm run vercel-build` | Migrations + generate + build (matches Vercel) |
+| `npm run db:migrate` | Prisma migrate (dev) |
+| `npm run markets:refresh` | Pull CoinGecko → update DB snapshot |
+
+---
+
+## Deploy (Vercel)
+
+1. Import the repo and set the same env vars in the project dashboard.  
+2. Set **`AUTH_URL`** to your production URL.  
+3. After the first deploy, run a market refresh once if the UI is empty (wait for cron or call the protected cron route).
+
+---
+
+## Disclaimer
+
+Learning / demo project only. Market data may be outdated. Not a trading product.

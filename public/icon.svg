@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <title>Coinflow</title>
+  <defs>
+    <linearGradient id="cf" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2563eb" />
+      <stop offset="1" stop-color="#0ea5e9" />
+    </linearGradient>
+    <clipPath id="cf-clip">
+      <rect width="32" height="32" rx="7" ry="7" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#cf-clip)">
+    <rect width="32" height="32" rx="7" ry="7" fill="url(#cf)" />
+    <path
+      d="M6 19.5L10.5 12l4 4.5L20 9l6 7"
+      stroke="#fff"
+      stroke-width="2.2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </g>
+</svg>

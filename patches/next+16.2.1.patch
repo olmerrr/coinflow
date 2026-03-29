@@ -1,0 +1,63 @@
+diff --git a/node_modules/next/dist/esm/server/lib/streaming-metadata.js b/node_modules/next/dist/esm/server/lib/streaming-metadata.js
+index 2e5f15c..7d7d9e1 100644
+--- a/node_modules/next/dist/esm/server/lib/streaming-metadata.js
++++ b/node_modules/next/dist/esm/server/lib/streaming-metadata.js
+@@ -1,11 +1,8 @@
+ import { getBotType, HTML_LIMITED_BOT_UA_RE_STRING } from '../../shared/lib/router/utils/is-bot';
+ export function shouldServeStreamingMetadata(userAgent, htmlLimitedBots) {
+-    const blockingMetadataUARegex = new RegExp(htmlLimitedBots || HTML_LIMITED_BOT_UA_RE_STRING, 'i');
+-    // Only block metadata for HTML-limited bots
+-    if (userAgent && blockingMetadataUARegex.test(userAgent)) {
+-        return false;
+-    }
+-    return true;
++    void userAgent;
++    void htmlLimitedBots;
++    return false;
+ }
+ // When the request UA is a html-limited bot, we should do a dynamic render.
+ // In this case, postpone state is not sent.
+diff --git a/node_modules/next/dist/server/lib/streaming-metadata.js b/node_modules/next/dist/server/lib/streaming-metadata.js
+index 5ecd7de..1a9a820 100644
+--- a/node_modules/next/dist/server/lib/streaming-metadata.js
++++ b/node_modules/next/dist/server/lib/streaming-metadata.js
+@@ -22,12 +22,9 @@ _export(exports, {
+ });
+ const _isbot = require("../../shared/lib/router/utils/is-bot");
+ function shouldServeStreamingMetadata(userAgent, htmlLimitedBots) {
+-    const blockingMetadataUARegex = new RegExp(htmlLimitedBots || _isbot.HTML_LIMITED_BOT_UA_RE_STRING, 'i');
+-    // Only block metadata for HTML-limited bots
+-    if (userAgent && blockingMetadataUARegex.test(userAgent)) {
+-        return false;
+-    }
+-    return true;
++    void userAgent;
++    void htmlLimitedBots;
++    return false;
+ }
+ function isHtmlBotRequest(req) {
+     const ua = req.headers['user-agent'] || '';
+diff --git a/node_modules/next/dist/esm/lib/metadata/metadata.js b/node_modules/next/dist/esm/lib/metadata/metadata.js
+index 5fda081..edbbddc 100644
+--- a/node_modules/next/dist/esm/lib/metadata/metadata.js
++++ b/node_modules/next/dist/esm/lib/metadata/metadata.js
+@@ -93,6 +93,7 @@ export function createMetadataComponents({ tree, pathname, parsedQuery, metadataContext, interpolatedParams, errorType, serveStreamingMetadata, isRuntimePrefetchable }) {
+         }
+         return /*#__PURE__*/ _jsx("div", {
+             hidden: true,
++            suppressHydrationWarning: true,
+             children: /*#__PURE__*/ _jsx(MetadataBoundary, {
+                 children: /*#__PURE__*/ _jsx(Suspense, {
+                     name: "Next.Metadata",
+diff --git a/node_modules/next/dist/lib/metadata/metadata.js b/node_modules/next/dist/lib/metadata/metadata.js
+index 25d7c63..017d208 100644
+--- a/node_modules/next/dist/lib/metadata/metadata.js
++++ b/node_modules/next/dist/lib/metadata/metadata.js
+@@ -138,6 +138,7 @@ function createMetadataComponents({ tree, pathname, parsedQuery, metadataContext, interpolatedParams, errorType, serveStreamingMetadata, isRuntimePrefetchable }) {
+         }
+         return /*#__PURE__*/ (0, _jsxruntime.jsx)("div", {
+             hidden: true,
++            suppressHydrationWarning: true,
+             children: /*#__PURE__*/ (0, _jsxruntime.jsx)(_boundarycomponents.MetadataBoundary, {
+                 children: /*#__PURE__*/ (0, _jsxruntime.jsx)(_react.Suspense, {
+                     name: "Next.Metadata",
