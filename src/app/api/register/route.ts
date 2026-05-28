@@ -39,10 +39,30 @@ export async function POST(req: NextRequest) {
 
   try {
     await sendSignupPassword(email, plainPassword);
-  } catch {
+  } catch (error) {
+    const resendError =
+      error instanceof Error ? error.message : "Unknown email error";
+    const isStrictProduction =
+      process.env.NODE_ENV === "production" &&
+      process.env.VERCEL_ENV === "production";
+
+    if (!isStrictProduction) {
+      return Response.json(
+        {
+          ok: true,
+          warning: "Email delivery failed on non-production environment.",
+          password: plainPassword,
+          emailError: resendError,
+        },
+        { status: 201 }
+      );
+    }
+
     await prisma.user.delete({ where: { id: user.id } }).catch(() => {});
     return Response.json(
-      { error: "Could not send email. Check RESEND_API_KEY and EMAIL_FROM." },
+      {
+        error: "Could not send email. Check RESEND_API_KEY and EMAIL_FROM.",
+      },
       { status: 502 }
     );
   }

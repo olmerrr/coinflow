@@ -20,6 +20,8 @@ const inputBase =
 export default function RegisterPage() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
+  const [devPassword, setDevPassword] = useState<string | null>(null);
+  const [devWarning, setDevWarning] = useState<string | null>(null);
 
   const {
     register,
@@ -32,15 +34,27 @@ export default function RegisterPage() {
 
   async function onValid(data: RegisterValues) {
     setServerError(null);
+    setDevPassword(null);
+    setDevWarning(null);
     const name = data.name.trim() || undefined;
     const r = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email: data.email }),
     });
-    const json = (await r.json()) as { error?: string };
+    const json = (await r.json()) as {
+      error?: string;
+      warning?: string;
+      password?: string;
+      emailError?: string;
+    };
     if (!r.ok) {
       setServerError(json.error ?? "Registration failed");
+      return;
+    }
+    if (json.password) {
+      setDevPassword(json.password);
+      setDevWarning(json.warning ?? null);
       return;
     }
     router.push("/login?registered=1");
@@ -99,6 +113,19 @@ export default function RegisterPage() {
           <p className="text-sm text-red-600" role="alert">
             {serverError}
           </p>
+        ) : null}
+        {devPassword ? (
+          <div
+            className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
+            role="status"
+          >
+            <p className="font-semibold">Temporary password (dev/preview):</p>
+            <p className="mt-1 break-all font-mono">{devPassword}</p>
+            {devWarning ? <p className="mt-2 text-xs">{devWarning}</p> : null}
+            <p className="mt-2 text-xs">
+              Copy this password and sign in on the login page.
+            </p>
+          </div>
         ) : null}
         <button
           type="submit"
